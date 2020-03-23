@@ -1,0 +1,43 @@
+package bitcamp.java142.board.common;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public abstract class KyjConnProperty {
+	
+	public static final String ORACLE11G_JDBCDRIVER="oracle.jdbc.driver.OracleDriver";
+	public static final String ORACLE11G_URL="jdbc:oracle:thin:@127.0.0.1:1521:orclYJ";
+	public static final String ORACLE11G_USER="KYJ00";
+	public static final String ORACLE11G_PASS="KYJ00";
+	
+	public static Connection getConnection() throws Exception{
+		System.out.println("[log] KyjConnProperty.getConnection() 시작 >>> ");
+		Connection conn = null;
+		Class.forName(ORACLE11G_JDBCDRIVER);
+		conn = DriverManager.getConnection(ORACLE11G_URL,
+										   ORACLE11G_USER,
+										   ORACLE11G_PASS);
+		System.out.println("[log] KyjConnProperty.getConnection() 종료 <<< ");
+		return conn;
+	}
+	
+	public static void conClose(Connection conn,
+							    PreparedStatement pstmt,
+							    ResultSet rsRs){
+		try{
+			if(rsRs!=null)try{rsRs.close();rsRs=null;}catch(Exception e){}
+			if(pstmt!=null)try{pstmt.close();pstmt=null;}catch(Exception e){}
+			if(conn!=null)try{conn.close();conn=null;}catch(Exception e){}
+		}catch(Exception e2){}
+	}
+	
+	public static void conClose(Connection conn,
+							    PreparedStatement pstmt){
+		try{
+			if(pstmt!=null)try{pstmt.close();pstmt=null;}catch(Exception e){}
+			if(conn!=null)try{conn.close();conn=null;}catch(Exception e){}
+		}catch(Exception e2){}
+	}
+} // end of KyjConnproperty

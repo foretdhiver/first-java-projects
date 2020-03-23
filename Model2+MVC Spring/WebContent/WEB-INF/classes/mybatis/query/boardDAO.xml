@@ -1,0 +1,123 @@
+<?xml version="1.0" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kyjspring.board.dao.BoardMapper">
+	<resultMap type="com.kyjspring.board.vo.BoardVO" id="boardVO">
+		<result property="kno"			column="KNO" />
+		<result property="ksubject"		column="KSUBJECT" />
+		<result property="kname"		column="KNAME" />
+		<result property="kpw"			column="KPW" />
+		<result property="kmemo"		column="KMEMO" />
+		<result property="kdeleteyn"	column="KDELETEYN" />
+		<result property="kinsertdate"	column="KINSERTDATE" />
+		<result property="kupdatedate"	column="KUPDATEDATE" />
+		<result property="kimage"		column="KIMAGE" />
+	</resultMap>
+	
+	<!-- insert -->
+	<insert id="insertBoard" parameterType="com.kyjspring.board.vo.BoardVO">
+		/* Mapper - insertBoard */
+		INSERT INTO SP_KYJBOARD
+		(KNO, KSUBJECT, KNAME, 
+		 KPW, KMEMO, KDELETEYN, 
+		 KINSERTDATE, KUPDATEDATE, 
+		 KIMAGE)
+		VALUES
+		(#{kno}, #{ksubject}, #{kname},
+		 #{kpw}, #{kmemo}, 'Y',
+		 SYSDATE, SYSDATE, 
+		 #{kimage})
+	</insert>	
+	
+	<!-- 채번 -->
+	<select id="chaebunBoard" parameterType="com.kyjspring.board.vo.BoardVO" resultMap="boardVO" >
+		/* 채번 쿼리 */
+		SELECT 
+        LPAD	((NVL(MAX(SUBSTR(A.KNO,-4)),0)+1), 4, '0') KNO
+		FROM    SP_KYJBOARD A
+	</select>
+	
+	<!-- listBoard -->
+	<select id="listBoard" parameterType="com.kyjspring.board.vo.BoardVO" resultMap="boardVO" >
+		/* Mapper - listBoard */
+		SELECT A.KNO            KNO
+     		  ,A.KSUBJECT       KSUBJECT
+     		  ,A.KNAME          KNAME
+              ,A.KPW            KPW
+     		  ,A.KMEMO          KMEMO
+    		  ,A.KDELETEYN      KDELETEYN
+     		  ,A.KINSERTDATE    KINSERTDATE
+     		  ,A.KUPDATEDATE    KUPDATEDATE
+    		  ,A.KIMAGE         KIMAGE
+		FROM SP_KYJBOARD A
+		WHERE A.KDELETEYN = 'Y'
+			<if test="ksubject !=null and ksubject !=''">
+				AND A.KSUBJECT LIKE '%'||#{ksubject}||'%'
+			</if>
+		ORDER BY A.KINSERTDATE DESC
+	</select>
+	
+	<!-- selectBoard -->
+	<select id="selectBoard" parameterType="com.kyjspring.board.vo.BoardVO" resultMap="boardVO">
+		/*Mapper - selectBoard*/
+		SELECT A.KNO            KNO
+     		  ,A.KSUBJECT       KSUBJECT
+     		  ,A.KNAME          KNAME
+              ,A.KPW            KPW
+     		  ,A.KMEMO          KMEMO
+    		  ,A.KDELETEYN      KDELETEYN
+     		  ,A.KINSERTDATE    KINSERTDATE
+     		  ,A.KUPDATEDATE    KUPDATEDATE
+    		  ,A.KIMAGE         KIMAGE
+		FROM SP_KYJBOARD A
+		WHERE A.KDELETEYN = 'Y'
+			<if test="kno !=null and kno !=''">
+				AND A.kno = #{kno}
+			</if>
+			<if test="kno ==null">
+				AND A.kno = #{kno}
+			</if>
+	</select>
+	
+	<!-- pwValueCheck -->
+	<select id="pwValueCheck" parameterType="com.kyjspring.board.vo.BoardVO" resultMap="boardVO" >
+	/*Mapper - pwValueCheck*/	
+		SELECT KPW
+		FROM SP_KYJBOARD
+		WHERE  KPW = #{kpw}
+		AND	   KNO = #{kno}
+	</select>
+	
+	<!-- update without image -->
+	<update id="updateBoard_w" parameterType="com.kyjspring.board.vo.BoardVO">
+		/*Mapper - updateBoard_w*/
+		UPDATE	SP_KYJBOARD
+		SET		KSUBJECT = #{ksubject} 
+			   ,KNAME = #{kname}
+			   ,KMEMO = #{kmemo}
+			   ,KUPDATEDATE = SYSDATE
+		WHERE	KDELETEYN = 'Y'
+		AND		KNO = #{kno}
+	</update>
+	
+	<!-- update with image -->
+	<update id="updateBoard" parameterType="com.kyjspring.board.vo.BoardVO">
+		/*Mapper - updateBoard*/
+		UPDATE	SP_KYJBOARD
+		SET		KSUBJECT = #{ksubject} 
+			   ,KNAME = #{kname}
+			   ,KMEMO = #{kmemo}
+			   ,KIMAGE = #{kimage}
+			   ,KUPDATEDATE = SYSDATE
+		WHERE	KDELETEYN = 'Y'
+		AND		KNO = #{kno}
+	</update>
+	
+	<!-- delete -->
+	<delete id="deleteBoard" parameterType="com.kyjspring.board.vo.BoardVO">
+		/*Mapper - deleteBoard*/
+		UPDATE	SP_KYJBOARD
+		SET		KDELETEYN = 'N'
+		WHERE	KNO = #{kno}
+		AND		KDELETEYN = 'Y'
+	</delete>
+</mapper>

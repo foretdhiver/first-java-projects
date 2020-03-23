@@ -1,0 +1,155 @@
+<?xml version="1.0" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kyjspring.member.dao.MemberMapper">
+	<resultMap type="com.kyjspring.member.vo.MemberVO" id="memberVO">
+		<result property="kmem"			column="KMEM" />
+		<result property="kid"			column="KID" />
+		<result property="kpw"			column="KPW" />
+		<result property="kname"		column="KNAME" />
+		<result property="khp"			column="KHP" />
+		<result property="kbirth"		column="KBIRTH" />
+		<result property="kemail"		column="KEMAIL" />
+		<result property="kpostno"		column="KPOSTNO" />
+		<result property="kjuso"		column="KJUSO" />
+		<result property="kjuso1"		column="KJUSO1" />
+		<result property="kimage"		column="KIMAGE" />
+		<result property="kdeleteyn"	column="KDELETEYN" />
+		<result property="kinsertdate"	column="KINSERTDATE" />
+		<result property="kupdatedate"	column="KUPDATEDATE" />
+	</resultMap>
+	
+	<!-- insert -->
+	<insert id="insertMember" parameterType="com.kyjspring.member.vo.MemberVO">
+		/*Mapper - insertMember*/
+		INSERT INTO SP_KYJMEMBER
+			(KMEM, KID, KPW, 
+			 KNAME, KHP, KBIRTH, 
+			 KEMAIL, KPOSTNO, KJUSO, 
+			 KJUSO1, KIMAGE, KDELETEYN, 
+			 KINSERTDATE, KUPDATEDATE)
+		VALUES
+			(#{kmem}, #{kid}, #{kpw}, 
+			 #{kname}, #{khp}, #{kbirth}, 
+			 #{kemail}, #{kpostno}, #{kjuso}, 
+			 #{kjuso1}, #{kimage}, 'Y', 
+			 SYSDATE, SYSDATE)	
+	</insert>
+	 
+	 
+	 <!-- select all -->
+	<select id="listMember" parameterType="com.kyjspring.member.vo.MemberVO" resultMap="memberVO">
+		/*Mapper - listMember*/
+		SELECT
+				A.KMEM				KMEM
+			   ,A.KID				KID
+			   ,A.KPW				KPW
+			   ,A.KNAME				KNAME
+			   ,A.KHP				KHP
+			   ,A.KBIRTH			KBIRTH
+			   ,A.KEMAIL			KEMAIL
+			   ,A.KPOSTNO			KPOSTNO
+			   ,A.KJUSO				KJUSO
+			   ,A.KJUSO1			KJUSO1
+			   ,A.KIMAGE			KIMAGE
+			   ,A.KDELETEYN			KDELETEYN
+			   ,TO_CHAR(A.KINSERTDATE, 'YYYY-MM-DD')		KINSERTDATE
+			   ,TO_CHAR(A.KUPDATEDATE, 'YYYY-MM-DD')		KUPDATEDATE
+		FROM	SP_KYJMEMBER A
+		WHERE	A.KDELETEYN = 'Y'
+			<if test='kid != null and kid != ""'>
+				AND	A.KID LIKE '%'||#{kid}||'%'
+			</if>
+		ORDER BY A.KMEM DESC	
+	</select>
+	
+	<!-- selectMember -->
+	<select id="selectMember" parameterType="com.kyjspring.member.vo.MemberVO" resultMap="memberVO">
+		/*Mapper - selectMember*/
+		SELECT
+				A.KMEM				KMEM
+			   ,A.KID				KID
+			   ,A.KPW				KPW
+			   ,A.KNAME				KNAME
+			   ,A.KHP				KHP
+			   ,A.KBIRTH			KBIRTH
+			   ,A.KEMAIL			KEMAIL
+			   ,A.KPOSTNO			KPOSTNO
+			   ,A.KJUSO				KJUSO
+			   ,A.KJUSO1			KJUSO1
+			   ,A.KIMAGE			KIMAGE
+			   ,A.KDELETEYN			KDELETEYN
+			   ,TO_CHAR(A.KINSERTDATE, 'YYYY-MM-DD')		KINSERTDATE
+			   ,TO_CHAR(A.KUPDATEDATE, 'YYYY-MM-DD')		KUPDATEDATE
+		FROM	SP_KYJMEMBER A
+		WHERE	A.KID = #{kid}
+		AND		A.KDELETEYN = 'Y'
+	</select>
+	
+	<!-- 채번 -->
+	<select id="chaebunMember" parameterType="com.kyjspring.member.vo.MemberVO" resultMap="memberVO" >
+		/* 채번 쿼리 */
+		SELECT 
+        LPAD	((NVL(MAX(SUBSTR(A.KMEM,-4)),0)+1), 4, '0') KMEM
+		FROM    SP_KYJMEMBER A
+	</select>
+	
+	<!-- update with image -->
+	<update id="updateMember" parameterType="com.kyjspring.member.vo.MemberVO">
+		/*Mapper - updateMember*/
+		UPDATE	SP_KYJMEMBER
+		SET		KPW = #{kpw} 
+			   ,KNAME = #{kname}
+			   ,KHP = #{khp}
+			   ,KBIRTH = #{kbirth} 
+			   ,KEMAIL = #{kemail} 
+			   ,KPOSTNO = #{kpostno} 
+			   ,KJUSO = #{kjuso} 
+			   ,KJUSO1 = #{kjuso1} 
+			   ,KIMAGE = #{kimage} 
+			   ,KUPDATEDATE = SYSDATE
+		WHERE	KDELETEYN = 'Y'
+		AND		KID = #{kid}
+	</update>
+	
+	<!-- update without image -->
+	<update id="updateMember_w" parameterType="com.kyjspring.member.vo.MemberVO">
+		/*Mapper - updateMember*/
+		UPDATE	SP_KYJMEMBER
+		SET		KPW = #{kpw} 
+			   ,KNAME = #{kname}
+			   ,KHP = #{khp}
+			   ,KBIRTH = #{kbirth} 
+			   ,KEMAIL = #{kemail} 
+			   ,KPOSTNO = #{kpostno} 
+			   ,KJUSO = #{kjuso} 
+			   ,KJUSO1 = #{kjuso1} 
+			   ,KUPDATEDATE = SYSDATE
+		WHERE	KDELETEYN = 'Y'
+		AND		KID = #{kid}
+	</update>
+		
+	<!-- delete -->
+	<delete id="deleteMember" parameterType="com.kyjspring.member.vo.MemberVO">
+		/*Mapper - deleteMember*/
+		UPDATE	SP_KYJMEMBER
+		SET		KDELETEYN = 'N'
+		WHERE	KID = #{kid}
+		AND		KDELETEYN = 'Y'
+	</delete>
+	
+	<!-- logIn -->
+	<select id="logIn" parameterType="com.kyjspring.member.vo.MemberVO" resultMap="memberVO" >
+		SELECT KID, KNAME FROM SP_KYJMEMBER
+		WHERE  KID = #{kid}
+		AND	   KPW = #{kpw} 
+		AND	   KDELETEYN = 'Y'
+	</select>
+
+	<!-- idValueCkeck -->
+	<select id="idValueCkeck" parameterType="com.kyjspring.member.vo.MemberVO" resultMap="memberVO" >
+		SELECT KID
+		FROM SP_KYJMEMBER
+		WHERE  KID = #{kid}
+		AND	   KDELETEYN = 'Y'
+	</select>
+</mapper>

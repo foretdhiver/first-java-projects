@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<table border="1" align="center">
+	<c:if test="${empty memberList}">
+						<tr>
+							<td colspan="13" align="center">
+								등록된 회원 정보가 존재하지 않습니다.
+							</td>
+						</tr>
+	</c:if>
+	<c:forEach items="${memberList}" var="row">
+	<tr>
+		<td>회원번호</td>
+		<td>${row.kmem}</td>
+	</tr>
+	<tr>
+		<td>아이디</td>
+		<td>${row.kid}</td>
+	</tr>
+	<tr>
+		<td>비밀번호</td>
+		<td>${row.kpw}</td>
+	</tr>
+	<tr>
+		<td>이름</td>
+		<td>${row.kname}</td>
+	</tr>
+	<tr>
+		<td>휴대폰번호</td>
+		<td>${row.khp}</td>
+	</tr>
+	<tr>
+		<td>생년월일</td>
+		<td>${row.kbirth}</td>
+	</tr>
+	<tr>
+		<td>이메일주소</td>
+		<td>${row.kemail}</td>
+	</tr>
+	<tr>
+		<td>우편번호</td>
+		<td>${row.kpostno}</td>
+	</tr>
+	<tr>
+		<td>주소</td>
+		<td>${row.kjuso}</td>
+	</tr>
+	<tr>
+		<td>상세주소</td>
+		<td>${row.kjuso1}</td>
+	</tr>
+	<tr>
+		<td>이미지</td>
+		<td><img src="/${row.kimage}" alt="이미지가 없습니다" border="0" width="200px" height="200px"></td>
+	</tr>
+	<tr>
+		<td>가입일</td>
+		<td>${row.kinsertdate}</td>
+	</tr>
+	<tr>
+		<td>수정일</td>
+		<td>${row.kupdatedate}</td>
+	</tr>
+	<tr>
+		<td>상세보기</td>
+		<td><input type="button" value="[수정/삭제]"
+									onclick="updatePopup('${row.kid}')"/></td>
+	</tr>
+	</c:forEach>
+</table>
+</body>
+</html>

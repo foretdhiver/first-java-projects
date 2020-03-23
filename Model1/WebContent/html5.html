@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="EUC-KR"> <!-- 2byte로 읽겠다는 뜻. -->
+		<title>눈 오는 날엔 솬라펀</title> <!-- 웹 페이지를 수정했는데 변경이 안되면 제일 먼저 타이틀을 바꿔 보자. -->
+		<script type="text/javascript">
+		
+			function loginCheck(){
+				/*
+				window.document.loginForm.action="/babyWeb/login.jsp";
+				alert(window.document.loginForm.action);
+				window.document.loginForm.submit();
+				*/
+				/*
+				배열로도 쓸 수있다.
+				window.document.forms[0].action="/babyWeb/login.jsp";
+				alert(window.document.forms[0].action);
+				window.document.forms[0].submit();
+				*/
+				/*
+				alert(document.getElementById("idVal"));
+				alert(document.getElementById("idVal").value);
+				var idVal = document.getElementById("idVal").value;
+				alert("이렇게" + idVal);	
+				var idVal = document.getElementById("pwVal").value;
+				alert("이렇게" + pwVal);
+				*/
+				
+				alert(document.getElementById("idVal").value);
+				if(!document.getElementById("idVal").value){
+					alert("[아이디]를 입력하세요.");
+					document.getElementById("idVal").focus();
+					return;
+				}
+				alert(document.getElementById("pwVal").value);
+				if(!document.getElementById("pwVal").value){
+					alert("[비밀번호]를 입력하세요.");
+					document.getElementById("pwVal").focus();
+					return;
+				}
+				
+				// 최상위객체인 window는 생략 가능
+				document.loginForm.action="/babyWeb/login.jsp";
+				alert(document.loginForm.action);
+				document.loginForm.submit();
+				
+			}
+		
+		</script>
+	</head>
+	<body>
+		<!-- form 태그는 클라이언트에서 서버로 전송하는 태그 -->
+		<!-- HTML에서 서버로 데이터를 전송하는 태그는 form 태그 하나 밖에 없다. -->
+		<!-- 데이터를 빨리 보내고 싶을 땐 GET 천천히 보내도 될 땐 POST -->
+		<!-- HTTP프로토콜 1.0일 땐 헤더에 500byte 밖에 못썼는데, 1.1부터는 그 이상도 쓸 수 있음. -->
+		<!-- http://localhost.8088/babyweb/login.jsp -->
+		<form name="loginForm" id="LoginForm" method="GET"> 
+			<!-- 배열로 표기 할 수있음. inputs[0] -->
+			
+			<table border="1" align="center">
+				<tr>
+					<td colspan="2" align="center">
+						로그인
+					</td>
+				</tr>
+				<tr>
+					<td align="center">아이디</td>
+					<td>
+						<input type="text" name="id" id="idVal">
+					</td>
+				</tr>
+				<tr>
+					<td align="center">패스워드</td>
+					<td>
+						<input type="text" name="pw" id="pwVal">
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">
+						<input type="button" value="보내기" onclick="loginCheck()">
+						<input type="button" value="다시">
+					</td>
+				</tr>
+			</table>
+			
+	
+			<!--  <input type="submit" value="send"> -->
+			<!-- /login.jsp , babyWeb/login.jsp = NO , /babyWeb/login.jsp = OK -->
+			
+			
+		</form>
+	</body>
+</html>

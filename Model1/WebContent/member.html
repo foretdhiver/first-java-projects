@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+		<title>회원가입</title>
+		<script type="text/javascript">
+			// alert("회원가입 페이지 입니다!");
+			
+			function checkAction(actionName){
+				alert("함수 진입 >>> : " + actionName);
+				
+				if('I' == actionName){
+					// http://localhost:8088/babyWeb/insertKyjMember.jsp
+					document.memberForm.action="/babyWeb/insertKyjMember_1.jsp"
+					alert(document.memberForm.action);
+				}
+				
+				if('S' == actionName){
+					// http://localhost:8088/babyWeb/selectKyjMember.jsp
+					document.memberForm.action="/babyWeb/selectKyjMember.jsp"
+					alert(document.memberForm.action);
+				}
+				
+				if('U' == actionName){
+					// 
+					document.memberForm.action="/babyWeb/updateKyjMember_1.jsp"
+					alert(document.memberForm.action);
+				}
+				
+				if('D' == actionName){
+					// 
+					document.memberForm.action="/babyWeb/deleteKyjMember.jsp"
+					alert(document.memberForm.action);
+				}
+				
+				if('A' == actionName){
+					// 
+					document.memberForm.action="/babyWeb/selectAllKyjMember.jsp"
+					alert(document.memberForm.action);
+				}
+			
+				document.memberForm.submit();
+			}
+		</script>
+	</head>
+	<body>
+		<form name="memberForm" method="POST">
+			<table border="1" align="center">
+				<tr>
+					<td colspan="2" align="center">회원가입</td>
+				</tr>
+				<tr>
+					<td width="100" align="center">회원번호</td>
+					<td width="250">
+					&nbsp;<input type="text" name=knumm disabled><br>
+					</td>
+				</tr>
+				<tr>
+					<td align="center">아이디</td>
+					<td>&nbsp;<input type="text" name="kid"><br>
+					<font size="1"> *필수입력 </font></td>
+				</tr>
+				<tr>
+					<td align="center">패스워드</td>
+					<td>&nbsp;<input type="text" name="kpw"><br>
+					<font size="1"> *필수입력 </font></td>
+				</tr>
+				<tr>
+					<td align="center">이름</td>
+					<td>&nbsp;<input type="text" name="kname"><br>
+					<font size="1"> *필수입력 검색과 수정할 때 쓰입니다 </font></td>
+				</tr>
+					<tr>
+					<td align="center">휴대폰번호</td>
+					<td>&nbsp;<input type="text" name="khp"></td>
+				</tr>
+				<tr>
+					<td align="center">생년월일</td>
+					<td>&nbsp;<input type="text" name="kbirth"></td>
+				</tr>
+				<tr>
+					<td align="center">이메일</td>
+					<td>&nbsp;<input type="text" name="kmail"></td>
+				</tr>
+				<tr>
+					<td align="center">우편번호</td>
+					<td>&nbsp;<input type="text" name="kpostno"></td>
+				</tr>
+				<tr>
+					<td align="center">도로명주소</td>
+					<td>&nbsp;<input type="text" name="kjuso"></td>
+				</tr>
+				<tr>
+					<td align="center">삭제여부</td>
+					<td>&nbsp;<input type="text" name="kdeleteyn" disabled><br>
+				</tr>
+				<tr>
+					<td align="center">입력일</td>
+					<td>&nbsp;<input type="text" name="kinsertdate" disabled><br>
+				</tr>
+				<tr>
+					<td align="center">수정일</td>
+					<td>&nbsp;<input type="text" name="kupdatedate" disabled><br>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">
+						<input type="button" value="입력" onclick="checkAction('I');">
+						<input type="button" value="조회" onclick="checkAction('S');">
+						<input type="button" value="수정" onclick="checkAction('U');">
+						<input type="button" value="탈퇴" onclick="checkAction('D');">
+						<input type="button" value="전체회원보기" onclick="checkAction('A');">
+						<input type="reset" value="리셋">
+					</td>
+				</tr>
+			</table>
+		
+		</form>
+	</body>
+</html>
