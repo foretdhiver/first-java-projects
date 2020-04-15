@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.BDDao">
+
+<!--  
+	<select id="boardDepartmentList" parameterType="bdVO" resultType="bdVO">
+		SELECT 
+   				BDNO,
+				DEPTCD,
+				BDSUBJECT,
+				EMNAME,
+				BDPW,
+				BDCONTENT,
+				TO_CHAR(BDINSERTDATE,'YYYY-MM-DD') BDINSERTDATE,
+				BDUPDATEDATE,
+				BDDELETEYN,
+				BDTASKYN,
+				BDNOTICEYN,
+				EMNO,
+				JOBCD,
+				BDVCNT,
+				BDFILEPATH,
+				BDREF,
+				BDSTEP 
+		FROM      BOARDDEPARTMENT
+		WHERE	  DEPTCD = #{deptcd}
+		AND 	  BDDELETEYN = 'Y'
+		ORDER BY  BDREF DESC, BDSTEP
+	</select>
+-->
+	<select id="boardDepartmentList" parameterType="bdVO" resultType="bdVO">
+		SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.DEPTCD DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.DEPTCD) OVER() AS TOTALCOUNT  
+	FROM
+	(
+			SELECT 
+   				BDNO,
+				DEPTCD,
+				BDSUBJECT,
+				EMNAME,
+				BDPW,
+				BDCONTENT,
+				TO_CHAR(BDINSERTDATE,'YYYY-MM-DD') BDINSERTDATE,
+				BDUPDATEDATE,
+				BDDELETEYN,
+				BDTASKYN,
+				BDNOTICEYN,
+				EMNO,
+				JOBCD,
+				BDVCNT,
+				BDFILEPATH,
+				BDREF,
+				BDSTEP 
+		FROM      BOARDDEPARTMENT
+		WHERE	  DEPTCD = #{deptcd}
+		AND 	  BDDELETEYN = 'Y'
+				<if test="search=='bdsubject'">
+					<![CDATA[AND BDSUBJECT LIKE '%'||#{keyword}||'%']]>
+				</if>
+				<if test="search=='emname'">
+					<![CDATA[AND EMNAME = #{keyword}]]>
+				</if>
+		ORDER BY  BDNOTICEYN DESC, BDREF DESC, BDSTEP 
+	)AA
+	) 
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+
+	<select id="boardDepartmentDetail" parameterType="bdVO" resultType="bdVO">
+		SELECT 
+   				  * 
+		FROM      BOARDDEPARTMENT
+		WHERE	  BDNO		= #{bdno}
+	</select>
+<!--  채번  -->
+	<select id="boardDepartmentChebun" parameterType="bdVO" resultType="bdVO">
+		SELECT CASE WHEN MAX(SUBSTR(BDNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(BDNO,-4))+1) END BDNO FROM BOARDDEPARTMENT
+		WHERE TO_CHAR(BDINSERTDATE,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+<!-- 게시글 입력 -->
+	<insert id="boardDepartmentInsert" parameterType="bdVO">
+		INSERT INTO BOARDDEPARTMENT
+			(BDNO, DEPTCD, BDSUBJECT, EMNAME,
+    		BDPW,BDCONTENT, BDINSERTDATE, BDUPDATEDATE,
+    		BDDELETEYN,BDTASKYN,BDNOTICEYN,BDFILEPATH,
+    		EMNO,JOBCD,BDVCNT,BDREF,BDSTEP)
+		VALUES
+			(#{bdno}, #{deptcd}, #{bdsubject}, #{emname},
+    		#{bdpw},#{bdcontent}, SYSDATE, SYSDATE,
+    		'Y',#{bdtaskyn},#{bdnoticeyn},#{bdfilepath},
+    		#{emno},#{jobcd},0,#{bdref},#{bdstep})
+	</insert>
+<!-- 게시글 삭제 -->
+	<update id="boardDepartmentDelete" parameterType="bdVO">
+		UPDATE BOARDDEPARTMENT
+		SET	
+    			BDDELETEYN		= 'N',           
+    			BDUPDATEDATE	= SYSDATE
+    	WHERE	BDNO			= #{bdno}
+		AND		BDDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BDPW			= #{bdpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 게시글 수정 -->
+	<update id="boardDepartmentUpdate" parameterType="bdVO">
+		UPDATE BOARDDEPARTMENT
+		SET	
+    			BDSUBJECT		= #{bdsubject},           
+    			BDNOTICEYN		= #{bdnoticeyn},
+    			BDCONTENT		= #{bdcontent},
+    			BDUPDATEDATE	= SYSDATE
+    	WHERE	BDNO			= #{bdno}
+		AND		BDDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BDPW			= #{bdpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 조회수 -->
+	<update id="boardDepartmentViewCntUp" parameterType="bdVO">
+		UPDATE BOARDDEPARTMENT
+		SET	  
+    			BDVCNT			= BDVCNT + 1
+    	WHERE	BDNO			= #{bdno}
+		AND		BDDELETEYN		= 'Y'
+	</update>
+	<!-- 메인에서 최신글 8건 조회 -->
+	<select id="boardDeptMainList" parameterType="bdVO" resultType="bdVO">
+		SELECT 
+			A.BDNO, 
+			A.BDSUBJECT,
+			TO_CHAR(A.BDINSERTDATE, 'YYYY-MM-DD') BDINSERTDATE,
+			A.EMNAME,
+			A.DEPTCD
+		FROM BOARDDEPARTMENT A
+		WHERE A.BDDELETEYN = 'Y'
+		<![CDATA[ AND ROWNUM <= 5 ]]>
+		AND A.DEPTCD = #{deptcd}
+		AND A.BDSTEP = '0'
+		ORDER BY A.BDNO DESC
+	</select>
+						
+</mapper>

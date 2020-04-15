@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config  3.0//EN"
+							   "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.spring.ge.vo.EmInfoVO" alias="EmInfo"/>
+		<typeAlias type="com.spring.ge.vo.BDVO" alias="bdVO"/>
+		<typeAlias type="com.spring.ge.vo.BTVO" alias="btVO"/>
+		<typeAlias type="com.spring.ge.vo.BNVO" alias="bnVO"/>
+		<typeAlias type="com.spring.ge.vo.BTComVO" alias="btcomVO"/>
+		<typeAlias type="com.spring.ge.vo.BDComVO" alias="bdcomVO"/>
+		<typeAlias type="com.spring.ge.vo.CalendarVO" alias="calendarVO"/>
+		<typeAlias type="com.spring.ge.vo.EaVO" alias="ea" />
+		<typeAlias type="com.spring.ge.vo.EaVO_" alias="ea_" />
+		<typeAlias type="com.spring.ge.vo.CommonVO" alias="commonVO"/>
+		<typeAlias type="com.spring.ge.vo.EmPrInfoVO" alias="empr" />
+		<typeAlias type="com.spring.ge.vo.EmHrVO" alias="hr" />
+		<typeAlias type="com.spring.ge.vo.AnBoardVO" alias="anBoard" />
+		<typeAlias type="com.spring.ge.vo.ReplyVO" alias="reply" />
+		<typeAlias type="com.spring.ge.vo.ProjectBoardVO" alias="pjBoard" />
+		<typeAlias type="com.spring.ge.vo.PbReplyVO" alias="PbReply" />
+		<typeAlias type="com.spring.ge.vo.PjCalendarVO" alias="pjCalendar" />
+	</typeAliases>
+</configuration>

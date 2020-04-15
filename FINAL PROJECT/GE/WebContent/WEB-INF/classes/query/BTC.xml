@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.BTCDao">
+
+	<select id="commentListT" parameterType="btcomVO" resultType="btcomVO">
+		SELECT 
+   			A.BTCOMNO,
+			A.BTNO,
+			A.EMNAME,
+			A.BTCOMCONTENT,
+			A.BTCOMINSERTDATE,
+			A.BTCOMUPDATEDATE,
+			A.BTCOMDELETEYN,
+			A.COMCD,
+			B.COMNAME,
+			A.EMNO,
+			A.JOBCD,
+			A.DEPTCD      
+		FROM    BTCOMMENT A, COMMENT_INFO B
+		WHERE   A.BTCOMDELETEYN = 'Y'
+		AND     A.COMCD = B.COMCD
+		AND     A.BTNO	= #{btno}
+		ORDER BY BTCOMNO DESC
+	</select>
+	<select id="commentChaebunT" parameterType="btcomVO" resultType="btcomVO"> 
+		SELECT CASE WHEN MAX(SUBSTR(BTCOMNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(BTCOMNO,-4))+1) END BTCOMNO FROM BTCOMMENT 
+		WHERE TO_CHAR(BTCOMINSERTDATE,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')    
+	</select>
+		<insert id="commentInsertT" parameterType="btcomVO">
+		INSERT INTO BTCOMMENT(
+			BTCOMNO,BTNO,EMNAME,
+			BTCOMCONTENT,BTCOMINSERTDATE,BTCOMUPDATEDATE,
+			BTCOMDELETEYN,COMCD,EMNO,
+			JOBCD,DEPTCD		
+		)
+		VALUES(
+			#{btcomno},#{btno},#{emname},
+			#{btcomcontent},SYSDATE,SYSDATE,
+			'Y',#{comcd},#{emno},
+			#{jobcd},#{deptcd}		
+		)
+	</insert>
+	<update id="commentDeleteT" parameterType="btcomVO">
+		UPDATE	BTCOMMENT
+		SET		BTCOMDELETEYN	= 'N',
+				BTCOMUPDATEDATE	= SYSDATE
+		WHERE	BTCOMDELETEYN	= 'Y'
+		AND		BTCOMNO			= #{btcomno}
+		AND		EMNO			= #{emno}
+		AND		BTNO			= #{btno}
+	</update>
+		<update id="commentUpdateT" parameterType="btcomVO">
+		UPDATE	BTCOMMENT
+		SET		BTCOMCONTENT	= #{btcomcontent},
+				BTCOMUPDATEDATE	= SYSDATE
+		WHERE	BTCOMDELETEYN	= 'Y'
+		AND		BTCOMNO			= #{btcomno}
+		AND		EMNO			= #{emno}
+		AND		BTNO			= #{btno}
+	</update>
+	
+</mapper>
+
+
+

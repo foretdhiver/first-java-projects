@@ -1,0 +1,337 @@
+@CHARSET "EUC-KR";
+/*
+		
+		mainframe : Á¤º¸°¡ ³ªÅ¸³¯ main frame
+		
+	*/
+		a:link { color: white; text-decoration: none;}
+	    a:visited { color: white; text-decoration: none;}
+	    a:hover { color: #615F8D; text-decoration: none;}
+		body {font-family :"³ª´®¹Ù¸¥°íµñ","¸¼Àº °íµñ",Dotum,"µ¸¿ò",Arial,sans-serif;
+			  font-size : 10pt;}
+		.ge_maindiv{
+				border: hidden;
+				margin-bottom:0px;
+		}
+		.outertable{
+				border: hidden;
+				display:table;
+				width: 1200px;
+				height: 650px;
+				margin:auto;
+				border-collapse: separate;
+			    border-spacing: 0px;
+		}
+		.topinfo{
+				padding: 0 0 0 0 ;
+				margin:auto;
+				margin-top:-4px;
+				margin-bottom:2px;
+				display:table;
+				width: 1170px;
+				height:5px;
+				color: #404040;
+		}
+		.bottom{
+				display:table;
+				width: 1150px;
+				margin:auto;
+				margin-bottom:0px;
+				padding: 5px 15px 5px 15px;
+				background:#D8D8D8;
+				height:100px;
+			    border: 1px solid #cccccc;
+			    border-radius:1px;
+			    color: #404040;
+		}
+		.bottominfo{
+				display:table-cell; 
+				text-align:right; 
+				vertical-align:bottom;
+		}
+		.myname{
+				display:table-cell; 
+				text-align:left; 
+				vertical-align:middle;
+		}
+		.logout{
+				display:table-cell; 
+				width:50px;
+				text-align:right;
+				cursor:pointer;
+				vertical-align:middle;
+		}
+		.tomain{
+				display:table-cell; 
+				width:20px;
+				text-align:right;
+				cursor:pointer;
+				vertical-align:middle;
+		}
+		.topdiv{
+				margin:auto;
+				height: 25px;
+				border: hidden;
+		}
+		.topmenu{
+				display:table;
+				width: 1150px;
+				margin:auto;
+				padding: 5px 15px 5px 15px;
+				background:#D8D8D8;
+				height:50px;
+			    border: 1px solid #cccccc;
+			    border-radius:1px;
+			    font-size:18px;
+			    color:white;
+		}
+		.p{
+				display:table-cell; 
+				text-align:right; 
+				vertical-align:middle;
+		}
+		
+		.ge_sidemenu{
+				padding: 10px 10px 0 10px;
+				width:150px;
+				height: 438px;
+				display:table-cell; 
+				float: left;
+				margin:auto;
+				border: hidden;
+				border-collapse: separate;
+			    border-spacing: 10px;
+		}
+		.ge_myinfo{
+				margin: 0;
+				width: 148px;
+				padding: 0;
+				margin-bottom:10px;
+				background:#D8D8D8;
+				border:1px solid #BDBDBD;
+				border-radius:1px;
+		}
+		.itsme{
+				margin: auto;
+				text-align:center;
+				margin-bottom:15px;
+		}
+		.mainframe{
+				display:table-cell; 
+				padding: 10px 0 0 0;
+				float: left;
+				width: 1007px;
+				height: auto;
+				margin-left: 180px;
+				border: hidden;
+		}
+		/* ge_myinfo¿¡ ÀÖ´Â ³» »çÁø */
+		.myimg{
+				display: block; 
+				margin: auto;
+				width: 120px;
+    			height: auto;
+    			object-fit: cover;
+		}	
+		/* ge_myinfo¿¡ img ¸¦ ÀÚ¸£´Â Æ² */
+		.imgbox{
+			margin:auto;
+			margin-top:15px;
+			background:#D8D8D8;
+			width: 120px;
+		    height: 150px; 
+		    border-radius: 3%;
+		    overflow: hidden;
+		}
+		.button {
+				background-color: #D8D8D8; /* Green */
+				border: none;
+				color: white;
+				padding: 5px 10px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 12px;
+				border-radius:1px;
+		}
+		.button:hover{
+				background-color: #ededed;
+				cursor:pointer;
+		}
+		
+		.menubtn{
+				width:150px;
+				height:30px;
+				border:1px solid #cccccc;
+				border-radius:1px;
+				background:#D8D8D8;
+				float:left;
+				text-align:center;
+				cursor:pointer;
+				position:relative;
+				box-sizing:border-box;
+				overflow:hidden;
+				margin:0 0 10px 0px;
+		}
+		.menubtn a{
+				font-family:"³ª´®¹Ù¸¥°íµñ";
+				font-size:16px;
+				color:#ffffff;
+				text-decoration:none;
+				line-height:30px;
+				transition:all .5s ease;
+				z-index:2;
+				position:relative;
+		}
+		.mbtneff{
+				width:150px;
+				height:30px;
+				bottom:-30px;
+				background:#ffffff;
+				position:absolute;
+				transition:all .5s ease;
+				z-index:1;
+		}
+
+		.menubtn:hover a{
+				color:#615F8D;
+		}	
+		
+		/* Search */
+		.searchBox{
+				border: 1px solid yellow; 
+				margin:auto; 
+				height:50px;
+		}
+        .searchDate{
+        		display:table;
+        		margin-left:195px;
+        		overflow:hidden;
+        		*zoom:1
+        }
+        .searchDate:after{display:block;clear:both;content:''}
+        .searchDate li{position:relative;float:left;margin:0 7px 0 0}
+        .searchDate li .chkbox2{display:block;text-align:center}
+        .searchDate li .chkbox2 input{position:absolute;z-index:-1}
+        .searchDate li .chkbox2 label{
+        		display:block;
+        		width:70px;
+        		height:30px;
+        		font-size:14px;
+        		color:#404040;
+        		text-align:center;
+        		line-height:32px;
+        		text-decoration:none;
+        		cursor:pointer;
+        		background:#D8D8D8;
+        		border-radius:3px;
+        }
+        .searchDate li .chkbox2.on label{background-color:#ededed}
+        .searchDate li .chkbox2 label:hover{background-color: #ededed}
+        .demi{
+        		display:inline-block;
+        		margin:0 1px;
+        		vertical-align:middle
+        }
+        .inpType{	
+        		padding-left:6px;
+        		height:20px;
+        		line-height:20px;
+        		border:1px solid #e3e7e8
+        }
+        .btncalendar{
+        		display:inline-block;
+        		vertical-align:middle;
+        		width:22px;
+        		height:22px;
+        		background:url(/ea_Img/iconcalendar.png) center center no-repeat;
+        		text-indent:-999em}
+		
+		.tit{
+				display:table;
+				height: 50px;
+				color: #404040;		
+				border-left:15px solid #e3e7e8;
+		}
+		.title{
+				display:table-cell;
+				text-align:left;
+				vertical-align:middle;
+				font-size:30px; 
+				
+		}
+		table.ct_List{
+				width: 100%;
+				border-collapse: separate;
+				border:hidden;
+			    border-spacing: 0px;
+			    margin:auto;
+			    color: #404040;
+		}
+		.ct_List a{
+				color: #404040;
+		}
+		.ct_List th{
+				border-bottom: 1px solid #d9d9d9;
+				height:30px;
+				font-size:14px;
+				background-color: #D8D8D8;
+				cursor:Default;
+		}
+		.ct_List td{
+				border-bottom: 1px dotted #d9d9d9;
+				height:30px;
+		}
+		.ct_List td:nth-child(2),.inner_menu td:nth-child(3){
+				text-align:center;
+		}
+		.ct_List td:nth-child(3){
+				cursor:pointer;
+		}
+		.ct_List tr:hover{
+				background-color: #F2F2F2;
+		}
+		.ct_List tr:nth-child(1):hover{
+				background-color: #FFFFFF;
+		}
+		
+		ol,ul{list-style:none} 
+		.cal_container{
+				text-align:left;
+				width:100%; 
+				margin:auto;
+				border: hidden;
+		}
+        .paging_container{
+        		text-align:center;
+        		border: hidden;
+        		padding-top:10px;
+        }
+        .paging_container a{
+        		color: black;
+        }
+        
+        select {
+        		height:25px;
+				width: 75px;
+				padding: 0 0 0 10px;
+				border: 1px solid #999;
+				font-family: inherit;
+				background: url('/ge/arrow.png') no-repeat 95% 50%;
+				border-radius: 1px;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+		}
+		.formsearch{
+				margin:auto;
+				height:25px;
+				border: hidden;
+		}
+		.tableContainer{
+				margin:auto;
+				float:auto;
+				padding:0;
+				border: 1px solid skyblue;
+		}
+		

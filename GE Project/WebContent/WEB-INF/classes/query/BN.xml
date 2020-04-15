@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.BNDao">
+
+<!-- 
+	<select id="boardNoticeList" parameterType="bnVO" resultType="bnVO">
+		SELECT 
+			BNNO,
+			BNSUBJECT,
+			EMNAME,
+			BNPW,
+			BNCONTENT,
+			TO_CHAR(BNINSERTDATE,'YYYY-MM-DD') BNINSERTDATE,
+			BNINSERTDATE,
+			BNDELETEYN,
+			EMNO,
+			JOBCD,
+			BNVCNT,
+			BNFILEPATH
+		FROM      BOARDNOTICE
+		WHERE 	  BNDELETEYN = 'Y'
+		ORDER BY  BNNO DESC
+	</select>
+ -->
+ 	<select id="boardNoticeList" parameterType="bnVO" resultType="bnVO">
+ 	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.BNNO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.BNNO) OVER() AS TOTALCOUNT  
+	FROM
+	(
+			SELECT 
+   				BNNO,
+				BNSUBJECT,
+				EMNAME,
+				BNPW,
+				BNCONTENT,
+				TO_CHAR(BNINSERTDATE,'YYYY-MM-DD') BNINSERTDATE,
+				TO_CHAR(BNUPDATEDATE,'YYYY-MM-DD') BNUPDATEDATE ,
+				BNDELETEYN,
+				EMNO,
+				JOBCD,
+				BNVCNT,
+				BNFILEPATH
+		FROM      BOARDNOTICE
+		WHERE	  BNDELETEYN = 'Y'
+				<if test="search=='bnsubject'">
+					<![CDATA[AND BNSUBJECT LIKE '%'||#{keyword}||'%']]>
+				</if>
+		ORDER BY  BNNO DESC
+	)AA
+	) 
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+ 	</select>
+	<select id="boardNoticeDetail" parameterType="bnVO" resultType="bnVO">
+		SELECT 
+   				  * 
+		FROM      BOARDNOTICE
+		WHERE	  BNNO		= #{bnno}
+	</select>
+<!--  채번  -->
+	<select id="boardNoticeChebun" parameterType="bnVO" resultType="bnVO">
+		SELECT CASE WHEN MAX(SUBSTR(BNNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(BNNO,-4))+1) END BNNO FROM BOARDNOTICE
+		WHERE TO_CHAR(BNINSERTDATE,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+<!-- 게시글 입력 -->
+	<insert id="boardNoticeInsert" parameterType="bnVO">
+		INSERT INTO BOARDNOTICE
+			(BNNO, BNSUBJECT, EMNAME,
+    		BNPW,BNCONTENT, BNINSERTDATE, BNUPDATEDATE,
+    		BNDELETEYN,BNFILEPATH,
+    		EMNO,JOBCD,BNVCNT)
+		VALUES
+			(#{bnno}, #{bnsubject}, #{emname},
+    		#{bnpw},#{bncontent}, SYSDATE, SYSDATE,
+    		'Y',#{bnfilepath},
+    		#{emno},#{jobcd},0)
+	</insert>
+<!-- 게시글 삭제 -->
+	<update id="boardNoticeDelete" parameterType="bnVO">
+		UPDATE BOARDNOTICE
+		SET	
+    			BNDELETEYN		= 'N',           
+    			BNUPDATEDATE	= SYSDATE
+    	WHERE	BNNO			= #{bnno}
+		AND		BNDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BNPW			= #{bnpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 게시글 수정 -->
+	<update id="boardNoticeUpdate" parameterType="bnVO">
+		UPDATE BOARDNOTICE
+		SET	
+    			BNSUBJECT		= #{bnsubject},  
+    			BNCONTENT		= #{bncontent},
+    			BNUPDATEDATE	= SYSDATE
+    	WHERE	BNNO			= #{bnno}
+		AND		BNDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BNPW			= #{bnpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 조회수 -->
+	<update id="boardNoticeViewCntUp" parameterType="bnVO">
+		UPDATE BOARDNOTICE
+		SET	  
+    			BNVCNT			= BNVCNT + 1
+    	WHERE	BNNO			= #{bnno}
+		AND		BNDELETEYN		= 'Y'
+	</update>
+<!-- 메인에서 최신글 8건 조회 -->
+	<select id="boardNoticeMainList" parameterType="bnVO" resultType="bnVO">
+		SELECT 
+			A.BNNO, 
+			A.BNSUBJECT,
+			TO_CHAR(A.BNINSERTDATE, 'YYYY-MM-DD') BNINSERTDATE,
+			A.EMNAME
+		FROM BOARDNOTICE A
+		WHERE A.BNDELETEYN = 'Y'
+		<![CDATA[ AND ROWNUM <= 8 ]]>
+		ORDER BY A.BNNO DESC
+	</select>
+						
+</mapper>

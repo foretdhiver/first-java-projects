@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.BTDao">
+
+<!-- 
+	<select id="boardTaskList" parameterType="btVO" resultType="btVO">
+		SELECT  
+   				BTNO,
+				DEPTCD,
+				BTSUBJECT,
+				EMNAME,
+				BTPW,
+				BTCONTENT,
+				TO_CHAR(BTINSERTDATE,'YYYY-MM-DD') BTINSERTDATE,
+				BTUPDATEDATE,
+				BTDELETEYN,
+				BTTASKYN,
+				EMNO,
+				JOBCD,
+				BTVCNT,
+				BTFILEPATH 
+		FROM      BOARDTASK
+		WHERE	  DEPTCD = #{deptcd}
+		AND 	  BTDELETEYN = 'Y'
+		ORDER BY  BTNO DESC
+	</select>
+ -->
+ 	<select id="boardTaskList" parameterType="btVO" resultType="btVO">
+ 	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.DEPTCD DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.DEPTCD) OVER() AS TOTALCOUNT  
+	FROM
+	(
+			SELECT  
+   				BTNO,
+				DEPTCD,
+				BTSUBJECT,
+				EMNAME,
+				BTPW,
+				BTCONTENT,
+				TO_CHAR(BTINSERTDATE,'YYYY-MM-DD') BTINSERTDATE,
+				BTUPDATEDATE,
+				BTDELETEYN,
+				BTTASKYN,
+				EMNO,
+				JOBCD,
+				BTVCNT,
+				BTFILEPATH 
+		FROM      BOARDTASK
+		WHERE	  DEPTCD = #{deptcd}
+		AND 	  BTDELETEYN = 'Y'
+				<if test="search=='btsubject'">
+					<![CDATA[AND BTSUBJECT LIKE '%'||#{keyword}||'%']]>
+				</if>
+				<if test="search=='emname'">
+					<![CDATA[AND EMNAME = #{keyword}]]>
+				</if>
+		ORDER BY  BTNO DESC
+	)AA
+	) 
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+ 	</select>
+	<select id="boardTaskDetail" parameterType="btVO" resultType="btVO">
+		SELECT 
+   				  * 
+		FROM      BOARDTASK
+		WHERE	  BTNO		= #{btno}
+	</select>
+<!--  채번  -->
+	<select id="boardTaskChebun" parameterType="btVO" resultType="btVO">
+		SELECT CASE WHEN MAX(SUBSTR(BTNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(BTNO,-4))+1) END BTNO FROM boardTask
+		WHERE TO_CHAR(BTINSERTDATE,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+<!-- 게시글 입력 -->
+	<insert id="boardTaskInsert" parameterType="btVO">
+		INSERT INTO BOARDTASK
+			(BTNO, DEPTCD, BTSUBJECT, EMNAME,
+    		BTPW,BTCONTENT, BTINSERTDATE, BTUPDATEDATE,
+    		BTDELETEYN,BTTASKYN,BTFILEPATH,
+    		EMNO,JOBCD,BTVCNT)
+		VALUES
+			(#{btno}, #{deptcd}, #{btsubject}, #{emname},
+    		#{btpw},#{btcontent}, SYSDATE, SYSDATE,
+    		'Y',#{bttaskyn},#{btfilepath},
+    		#{emno},#{jobcd},0)
+	</insert>
+<!-- 게시글 삭제 -->
+	<update id="boardTaskDelete" parameterType="btVO">
+		UPDATE BOARDTASK
+		SET	
+    			BTDELETEYN		= 'N',           
+    			BTUPDATEDATE	= SYSDATE
+    	WHERE	BTNO			= #{btno}
+		AND		BTDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BTPW			= #{btpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 게시글 수정 -->
+	<update id="boardTaskUpdate" parameterType="btVO">
+		UPDATE BOARDTASK
+		SET	
+    			BTSUBJECT		= #{btsubject}, 
+    			BTCONTENT		= #{btcontent},
+    			BTUPDATEDATE	= SYSDATE
+    	WHERE	BTNO			= #{btno}
+		AND		BTDELETEYN		= 'Y'
+		AND		EMNAME			= #{emname}
+		AND		BTPW			= #{btpw}
+		AND		EMNO			= #{emno}
+	</update>
+<!-- 조회수 -->
+	<update id="boardTaskViewCntUp" parameterType="btVO">
+		UPDATE BOARDTASK
+		SET	  
+    			BTVCNT			= BTVCNT + 1
+    	WHERE	BTNO			= #{btno}
+		AND		BTDELETEYN		= 'Y'
+		
+	</update>
+						
+</mapper>

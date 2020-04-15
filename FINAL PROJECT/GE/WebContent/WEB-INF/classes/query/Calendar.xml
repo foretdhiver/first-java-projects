@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.CalendarDao">
+<!-- 일정 입력 -->
+	<insert id="calendarInsert" parameterType="calendarVO">
+		INSERT INTO CALENDAR
+			(CALNO,CALSUBJECT,CALSTARTTIME,
+			CALENDTIME,CALINSERTDATE,CALUPDATEDATE,
+			CALCATEGORY,CALCONTENT,CALDELETEYN,
+			DEPTCD,JOBCD,EMNO,
+			CALID,CALPW
+			)
+		VALUES
+			(#{calno},#{calsubject},#{calstarttime},
+			 #{calendtime},SYSDATE,SYSDATE,
+			 #{calcategory},#{calcontent},'Y',
+			 #{deptcd},#{jobcd},#{emno},
+			 #{calid},#{calpw})
+	</insert>
+<!-- 일정 채번 생성 -->
+	<select id="calendarChaebun" parameterType="calendarVO" resultType="calendarVO">
+		SELECT CASE WHEN MAX(SUBSTR(CALNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(CALNO,-4))+1) END CALNO FROM CALENDAR
+		WHERE TO_CHAR(CALINSERTDATE,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+<!-- 사번으로 일정 전체 조회  -->
+	<select id="calendarList" parameterType="calendarVO" resultType="calendarVO">
+		SELECT 
+   			CALNO,
+   			CALSUBJECT,
+   			CALSTARTTIME,
+			CALENDTIME,
+			CALINSERTDATE,
+			CALUPDATEDATE,
+			CALCATEGORY,
+			CALCONTENT,
+			CALDELETEYN,
+			DEPTCD,
+			JOBCD,
+			EMNO,
+			CALID,
+			CALPW   
+		FROM    CALENDAR
+		WHERE
+				EMNO		= #{emno}
+		AND		CALDELETEYN = 'Y'
+        OR		CALCATEGORY = '00'
+		ORDER BY CALSTARTTIME
+	</select>
+<!-- 일정 삭제 -->
+	<update id="calendarDelete" parameterType="calendarVO">
+		UPDATE CALENDAR
+		SET	
+    			CALDELETEYN		= 'N',           
+    			CALUPDATEDATE	= SYSDATE
+    	WHERE	CALNO			= #{calno}
+		AND		CALDELETEYN		= 'Y'
+		AND		EMNO			= #{emno}
+		AND		CALID			= #{calid}
+		AND		CALPW			= #{calpw}
+	</update>
+<!-- 클릭시 클릭한 일정조회  -->
+	<select id="calendarListOne" parameterType="calendarVO" resultType="calendarVO">
+		SELECT 
+   			CALNO,
+   			CALSUBJECT,
+   			CALSTARTTIME,
+			CALENDTIME,
+			CALINSERTDATE,
+			CALUPDATEDATE,
+			CALCATEGORY,
+			CALCONTENT,
+			CALDELETEYN,
+			DEPTCD,
+			JOBCD,
+			EMNO,
+			CALID,
+			CALPW   
+		FROM    CALENDAR
+		WHERE
+				CALNO		= #{calno}
+		AND		CALDELETEYN = 'Y'
+	</select>
+<!-- 일정 수정 -->
+	<update id="calendarUpdate" parameterType="calendarVO">
+		UPDATE CALENDAR
+		SET	
+   			CALSUBJECT		= #{calsubject},
+   			CALSTARTTIME	= #{calstarttime},
+			CALENDTIME		= #{calendtime},
+			CALUPDATEDATE	= SYSDATE,
+			CALCATEGORY		= #{calcategory},
+			CALCONTENT		= #{calcontent}
+    	WHERE	CALNO			= #{calno}
+		AND		CALDELETEYN		= 'Y'
+		AND		EMNO			= #{emno}
+		AND		CALID			= #{calid}
+		AND		CALPW			= #{calpw}
+	</update>
+<!-- 관리자 페이지의 일정 리스트  -->
+	<select id="adminCalendarList" parameterType="calendarVO" resultType="calendarVO">
+		SELECT 
+   			*  
+		FROM    CALENDAR
+		WHERE
+				CALCATEGORY		= '00'
+		AND		CALDELETEYN		= 'Y'
+		ORDER BY CALSTARTTIME
+	</select>
+
+		
+</mapper>

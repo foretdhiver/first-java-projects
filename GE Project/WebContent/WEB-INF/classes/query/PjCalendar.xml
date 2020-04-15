@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.ge.dao.PjCalendarDao">
+
+	<!-- 전체조회-->
+	<select id="calList" parameterType="pjCalendar" resultType="pjCalendar">
+		SELECT    
+		    PCNO           
+		    ,PCSUB         
+		    ,DEPTNAME
+		    ,JOBNAME      
+		    ,EMNAME        
+		    ,PCMEMO
+		    ,PCSDATE
+		    ,PCEDATE
+		    ,TO_CHAR(PCINSERTDATE, 'YYYY-MM-DD')  PCINSERTDATE 
+   			,TO_CHAR(PCUPDATEDATE, 'YYYY-MM-DD')  PCUPDATEDATE                   
+		    ,PCDELETEYN 
+		FROM  PROJECT_CALENDAR
+		
+	</select>
+
+	<!-- 채번 -->
+	<select id="calChaebun" parameterType="pjCalendar" resultType="pjCalendar">
+		SELECT 
+		NVL(MAX(SUBSTR(PCNO,-4)),0)+1 PCNO
+		FROM PROJECT_CALENDAR
+	</select>
+	
+	<!-- 입력 -->
+	<insert id="calInsert" parameterType="pjCalendar">
+		INSERT INTO PROJECT_CALENDAR(
+	            PCNO           
+	            ,PCSUB         
+	            ,DEPTNAME  
+	            ,JOBNAME     
+	            ,EMNAME        
+	            ,PCMEMO       
+	            ,PCSDATE      
+	            ,PCEDATE           
+	            ,PCINSERTDATE   
+	            ,PCUPDATEDATE   
+	            ,PCDELETEYN 
+		)VALUES(#{pcno},#{pcsub},#{deptname},#{jobname},#{emname},
+				#{pcmemo},#{pcsdate},#{pcedate},SYSDATE,SYSDATE,'Y')
+	
+	</insert>
+	
+	<!-- 디테일 -->
+	<select id="calDetail" parameterType="pjCalendar" resultType="pjCalendar">
+		SELECT    
+		        PCNO           
+		        ,PCSUB         
+		        ,DEPTNAME
+		        ,JOBNAME       
+		        ,EMNAME        
+		        ,PCMEMO       
+		        ,PCSDATE      
+		        ,PCEDATE           
+		        ,TO_CHAR(PCINSERTDATE, 'YYYY-MM-DD')   PCINSERTDATE
+		        ,TO_CHAR(PCUPDATEDATE, 'YYYY-MM-DD')   PCUPDATEDATE   
+		        ,PCDELETEYN 
+		FROM PROJECT_CALENDAR
+		WHERE PCNO = #{pcno}
+	
+	</select>
+	
+	<!-- UPDATE -->
+	<update id="calUpdate" parameterType="pjCalendar">
+		UPDATE PROJECT_CALENDAR
+		SET  
+		        PCSUB    =  #{pcsub} 
+		        ,DEPTNAME   =  #{deptname} 
+		        ,JOBNAME = #{jobname}   
+		        ,EMNAME   =  #{emname}    
+		        ,PCMEMO  =  #{pcmemo} 
+		        ,PCUPDATEDATE = SYSDATE
+		WHERE PCNO = #{pcno}
+	
+	</update>
+	
+	<!-- DELETE -->
+	<delete id="calDelete" parameterType="pjCalendar">
+		DELETE FROM PROJECT_CALENDAR 
+		WHERE PCNO=#{pcno}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,913 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.ge.dao.EaDao_">
+
+	<!-- EaVO 클래스 -->
+	<resultMap type="ea_" id="eaVO">
+		<result property="ea_lineno"         column="EA_LINENO" />
+		<result property="ea_linename"       column="EA_LINENAME" />
+		<result property="ea_stepno"         column="EA_STEPNO" />
+		<result property="ea_empno"          column="EA_EMPNO" />
+		<result property="ea_empno1"         column="EA_EMPNO1" />
+		<result property="ea_empno2"         column="EA_EMPNO2" />
+		<result property="ea_logno"          column="EA_LOGNO" />
+		<result property="ea_status"         column="EA_STATUS" />
+		<result property="ea_finaldate"      column="EA_FINALDATE" />
+		<result property="ea_sign"           column="EA_SIGN" />
+		<result property="ea_sign1"          column="EA_SIGN1" />
+		<result property="ea_sign2"          column="EA_SIGN2" />
+		<result property="ea_doccd"          column="EA_COCCD" />
+		<result property="ea_no"             column="EA_NO" />
+		<result property="ea_subject"        column="EA_SUBJECT" />
+		<result property="ea_memo"        	 column="EA_MEMO" />
+		<result property="ea_insertdate"     column="EA_INSERTDATE" />
+		<result property="eacno"             column="EACNO" />
+		<result property="eadraftcontant"    column="EADRAFTCONTANT" />
+	</resultMap>
+	
+		<!-- EmVO 클래스 -->
+	<resultMap type="EmInfo" id="EM_INFO">
+		<result property="emno" 			 column="EMNO"/>
+		<result property="emname"			 column="EMNAME" />
+		<result property="emid"  			 column="EMID" />
+		<result property="empw"   			 column="EMPW" />
+		<result property="emhiredate"		 column="EMHIREDATE" />
+		<result property="deptcd"			 column="DEPTCD" />
+		<result property="jobcd"			 column="JOBCD" />
+		<result property="ememail"			 column="EMEMAIL" />
+		<result property="emhp"				 column="EMHP" />
+		<result property="emdino"			 column="EMDINO" />
+		<result property="emexno"			 column="EMEXNO" />
+		<result property="emsign"			 column="EMSIGN" />
+		<result property="eminsertdate"		 column="EMINSERTDATE" />
+		<result property="emupdatedate"		 column="EMUPDATEDATE" />
+	</resultMap>
+	
+	<!-- 로그인할 때 사용 -->
+	<select id="emInfoList" parameterType="EmInfo" resultType="EmInfo">
+      SELECT 
+            A.EMNO,
+            A.EMNAME,
+            A.EMID,
+            A.EMPW,
+            A.EMHIREDATE,
+            A.DEPTCD,
+            B.DEPTNAME,
+            A.JOBCD,
+            C.JOBNAME,
+            A.EMEMAIL,
+            A.EMHP,
+            A.EMDINO,
+            A.EMEXNO,
+            A.EMSIGN,
+            A.EMINSERTDATE,
+            A.EMUPDATEDATE
+      FROM    EM_INFO A, EM_DEPARTMENT B, EM_JOB C
+      WHERE   A.EMID = #{emid, jdbcType=VARCHAR}
+      AND      A.EMPW = #{empw, jdbcType=VARCHAR}
+      AND      A.DEPTCD = B.DEPTCD
+      AND      A.JOBCD  = C.JOBCD
+   </select>  
+   
+	<!-- 결재선 채번 -->
+	<select id="chaebunLine" parameterType="ea_" resultType="ea_">
+		SELECT CASE WHEN MAX(SUBSTR(A.EA_LINENO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(A.EA_LINENO,-4))+1) END EA_LINENO 
+		FROM EA_LINE A 
+		WHERE SUBSTR(A.EA_LINENO,4,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+	
+	<!-- 결재스텝 채번 -->
+	<select id="chaebunStep" parameterType="ea_" resultType="ea_">
+		SELECT CASE WHEN MAX(SUBSTR(A.EA_STEPNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(A.EA_STEPNO,-4))+1) END EA_STEPNO 
+		FROM EA_STEP A 
+		WHERE SUBSTR(A.EA_STEPNO,7,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+	
+	<!-- 결재문서 로그 채번 -->
+	<select id="chaebunLog" parameterType="ea_" resultType="ea_">
+		SELECT CASE WHEN MAX(SUBSTR(A.EA_LOGNO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(A.EA_LOGNO,-4))+1) END EA_LOGNO 
+		FROM EA_LOG A 
+		WHERE SUBSTR(A.EA_LOGNO,6,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+	
+	<!-- 결재테이블 채번 -->
+	<select id="chaebunTable" parameterType="ea_" resultType="ea_">
+		SELECT CASE WHEN MAX(SUBSTR(A.EA_NO,-4)) IS NULL THEN TO_CHAR(1)
+		ELSE TO_CHAR(MAX(SUBSTR(A.EA_NO,-4))+1) END EA_NO 
+		FROM EA_TABLE A 
+		WHERE SUBSTR(A.EA_NO,3,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+	
+	<!-- 결재선 등록하기 -->
+	<insert id="eaInsertLine" parameterType="ea_">
+		INSERT INTO EA_LINE
+			(
+			 EA_LINENO
+			,EA_LINENAME
+			)
+		VALUES
+			(
+			 #{ea_lineno, jdbcType=VARCHAR}         --결재라인번호
+			,#{ea_linename, jdbcType=VARCHAR}       --결재라인명
+			)
+	</insert>
+	
+	<!-- 결재스텝 등록하기 전에 스텝에 들어갈 리스트 보여주기 -->
+	<!-- Ajax용 dept 뽑기 -->
+	<select id="searchDeptList" parameterType="EmInfo" resultType="map">
+		SELECT  DISTINCT
+		        A.DEPTCD        DEPTCD
+		       ,B.DEPTNAME      DEPTNAME
+		FROM    EM_INFO A
+		       ,EM_DEPARTMENT B
+		WHERE   A.DEPTCD=B.DEPTCD
+	</select>
+	
+	<!-- Ajax용 job 뽑기 -->
+	<select id="searchJobList" parameterType="EmInfo" resultType="map">
+		SELECT DISTINCT
+		        A.JOBCD         JOBCD
+		       ,B.JOBNAME       JOBNAME
+		FROM    EM_JOB B
+		       ,EM_INFO A
+		       ,EM_DEPARTMENT  C
+		WHERE  A.JOBCD=B.JOBCD
+		AND    A.DEPTCD=C.DEPTCD
+		AND    C.DEPTCD=#{deptcd, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- Ajax용 사원이름 뽑기 -->
+	<select id="searchEmnameList" parameterType="EmInfo" resultType="map">
+		SELECT 
+		        A.EMNAME        EMNAME
+		       ,A.EMNO          EMNO
+		       ,A.JOBCD         JOBCD
+		       ,A.DEPTCD        DEPTCD
+		       ,B.DEPTNAME      DEPTNAME
+		       ,C.JOBNAME       JOBNAME
+		FROM    EM_INFO A
+		       ,EM_DEPARTMENT B
+		       ,EM_JOB C
+		WHERE   A.DEPTCD=B.DEPTCD
+		AND     A.JOBCD=C.JOBCD
+		AND     A.JOBCD=#{jobcd, jdbcType=VARCHAR}           -- 선택된 JOBNAME으로 조건이 바뀜
+		AND     A.DEPTCD=#{deptcd, jdbcType=VARCHAR}       -- 선택된 DEPTNAME으로 조건이 바뀜
+	</select>
+	
+	<!-- 결재스텝 등록하기 -->
+	<insert id="eaInsertStep" parameterType="ea_">
+		INSERT INTO EA_STEP
+			(
+			 EA_STEPNO
+			,EA_EMPNO
+			,EA_EMPNO1
+			,EA_EMPNO2
+			,EA_LINENO
+			)
+		VALUES
+			(
+			 #{ea_stepno, jdbcType=VARCHAR}
+			,#{ea_empno, jdbcType=VARCHAR}
+			,#{ea_empno1, jdbcType=VARCHAR}
+			,#{ea_empno2, jdbcType=VARCHAR}
+			,#{ea_lineno,jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<!-- 결재문서 로그 등록하기 -->
+	<insert id="eaInsertLog" parameterType="ea_">
+		INSERT INTO EA_LOG
+			(
+			 EA_FINALDATE
+			,EA_LOGNO
+			,EA_LINENO
+			,EA_STEPNO
+			,EA_NO
+			,EA_STATUS
+			,EA_SIGN
+			,EA_SIGN1
+			,EA_SIGN2
+			)
+		VALUES
+			(
+			 SYSDATE
+			,#{ea_logno, jdbcType=VARCHAR}
+			,#{ea_lineno, jdbcType=VARCHAR}
+			,#{ea_stepno, jdbcType=VARCHAR}
+			,#{ea_no, jdbcType=VARCHAR}
+			,'01'
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                            B.EA_EMPNO 
+			                   FROM     EA_STEP B 
+			                   WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                   AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			,'NULL'
+			,'NULL'
+			)
+	</insert>
+	
+	<!-- 결재자 업데이트 전 다음 결재자 찾기 -->
+	<select id="nextEmno" parameterType="ea_" resultType="ea_">
+	SELECT 		A.*
+	FROM 		EA_STEP A
+	WHERE 		EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 휴가계 작성 -->
+	<insert id="eaInsertH" parameterType="ea_">
+		INSERT INTO EA_TABLE
+			(
+			 EA_DOCCD
+			,EA_LINENO
+			,EA_LOGNO
+			,EA_NO
+			,EA_SUBJECT
+			,EA_MEMO
+			,EACNO
+			,EA_EMPNO
+			,EA_STATUS
+			,EA_INSERTDATE
+			,EA_NEXTEMNO
+			)
+		VALUES
+			(
+			 'H'
+			,#{ea_lineno, jdbcType=VARCHAR}
+			,#{ea_logno, jdbcType=VARCHAR}
+			,#{ea_no, jdbcType=VARCHAR}
+			,#{ea_subject, jdbcType=VARCHAR}
+			,#{ea_memo, jdbcType=VARCHAR}
+			,#{eacno, jdbcType=VARCHAR}
+			,#{ea_empno, jdbcType=VARCHAR}
+			,'01'
+			,SYSDATE
+			,#{ea_nextemno, jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<!-- 프로젝트 기안서 작성 -->
+	<insert id="eaInsertP" parameterType="ea_">
+		INSERT INTO EA_TABLE
+			(
+			 EA_DOCCD
+			,EA_LINENO
+			,EA_LOGNO
+			,EA_NO
+			,EA_SUBJECT
+			,EA_MEMO
+			,EADRAFTCONTANT
+			,EA_EMPNO
+			,EA_STATUS
+			,EA_INSERTDATE
+			,EA_NEXTEMNO
+			)
+		VALUES
+			(
+			 'P'
+			,#{ea_lineno, jdbcType=VARCHAR}
+			,#{ea_logno, jdbcType=VARCHAR}
+			,#{ea_no, jdbcType=VARCHAR}
+			,#{ea_subject, jdbcType=VARCHAR}
+			,#{ea_memo, jdbcType=VARCHAR}
+			,#{eadraftcontant, jdbcType=VARCHAR}
+			,#{ea_empno, jdbcType=VARCHAR}
+			,'01'
+			,SYSDATE
+			,#{ea_nextemno, jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<!-- 메인에 보여줄 리스트들 -->
+	<!-- 내가 결재자인 문서리스트 -->
+	<select id="eaMainAppList" parameterType="ea_" resultType="ea_">
+	SELECT B.*
+          ,C.*
+          ,G.EMNAME           EMNAME
+	FROM
+			(SELECT A.*
+			FROM   EA_TABLE A
+			WHERE A.EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+			AND A.EA_STATUS IN('01','02', '05')
+			ORDER BY A.EA_INSERTDATE DESC)B   
+		    ,EA_LOG C
+		    ,(SELECT D.*
+                      FROM EM_INFO D, EA_TABLE E, EA_LOG F
+                      WHERE D.EMNO=E.EA_EMPNO
+                      AND   EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+                      AND   E.EA_LOGNO=F.EA_LOGNO
+                      AND   ROWNUM='1'
+                      ORDER BY E.EA_NO DESC)G
+	WHERE C.EA_LOGNO=B.EA_LOGNO
+	AND	  ROWNUM &lt;= 5
+	</select>
+	
+	<select id="eaMaineaList" parameterType="ea_" resultType="ea_">
+		SELECT *
+        FROM(   
+            (SELECT
+			        A.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,TO_CHAR(B.EA_INSERTDATE,'YYYY-MM-DD') EA_INSERTDATE  
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN ('01', '02', '03', '04', '05', '06', '07')))
+		WHERE	ROWNUM &lt;= 5
+	</select>
+	
+	<!-- 내 반려결재함 -->
+	<select id="eaMainRJList" parameterType="ea_" resultType="ea_">
+		SELECT *
+		FROM(
+		    SELECT
+			        B.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,TO_CHAR(A.EA_FINALDATE,'YYYY-MM-DD') AS EA_FINALDATE     
+			       ,TO_CHAR(B.EA_INSERTDATE,'YYYY-MM-DD') AS EA_INSERTDATE 
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR}) C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     (B.EA_STATUS IN('04'))
+		    ORDER BY B.EA_INSERTDATE DESC
+		)
+		WHERE	ROWNUM &lt;= 5
+	</select>
+	
+	<!-- 내 진행결재함 -->
+	<select id="eaMainPGList" parameterType="ea_" resultType="ea_">
+		SELECT *
+		FROM(
+			SELECT
+			        B.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,TO_CHAR(A.EA_FINALDATE,'YYYY-MM-DD') AS EA_FINALDATE     
+			       ,TO_CHAR(B.EA_INSERTDATE,'YYYY-MM-DD') AS EA_INSERTDATE 
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR}) C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     (B.EA_STATUS IN('01', '02'))
+			ORDER BY B.EA_INSERTDATE DESC
+		)
+		WHERE	ROWNUM &lt;= 5
+	</select>
+	
+	<!-- 내 대기결재함 -->
+	<select id="eaMainSTList" parameterType="ea_" resultType="ea_">
+	SELECT *
+		FROM(
+		    SELECT
+			        B.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,TO_CHAR(A.EA_FINALDATE,'YYYY-MM-DD') AS EA_FINALDATE     
+			       ,TO_CHAR(B.EA_INSERTDATE,'YYYY-MM-DD') AS EA_INSERTDATE 
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR}) C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     (B.EA_STATUS IN('05'))
+		    ORDER BY B.EA_INSERTDATE DESC
+		)
+		WHERE	ROWNUM &lt;= 5
+	</select>
+	<!-- 메인 끝 -->
+	
+	<!-- 작성자의 전체 문서함 -->
+	<select id="eaWriteAll" parameterType="ea_" resultType="ea_">
+	
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+	
+		  SELECT
+			        A.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,B.EA_INSERTDATE     EA_INSERTDATE   
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}    
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN ('01', '02', '03', '04', '05', '06', '07'))AA
+			)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 작성자의 진행 문서함 -->
+	<select id="eaWritePG" parameterType="ea_" resultType="ea_">
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			SELECT
+			        B.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,B.EA_INSERTDATE     EA_INSERTDATE   
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}    
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN('01', '02')) AA
+		)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 작성자의 완료 문서함 -->
+	<select id="eaWriteEnd" parameterType="ea_" resultType="ea_">
+	
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			SELECT
+			        A.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,B.EA_INSERTDATE     EA_INSERTDATE   
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}    
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN('03')) AA
+		)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 작성자의 반려 문서함 -->
+	<select id="eaWriteRJ" parameterType="ea_" resultType="ea_">
+	
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+	
+			SELECT
+			        A.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,B.EA_INSERTDATE     EA_INSERTDATE   
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}    
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN('04'))AA
+		)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 작성자의 대기 문서함 -->
+	<select id="eaWriteST" parameterType="ea_" resultType="ea_">
+	
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			SELECT
+			        A.EA_STATUS         EA_STATUS
+			       ,A.EA_NO             EA_NO
+			       ,A.EA_STEPNO			EA_STEPNO
+			       ,A.EA_LINENO			EA_LINENO
+			       ,A.EA_LOGNO			EA_LOGNO
+			       ,A.EA_FINALDATE      EA_FINALDATE    
+			       ,B.EA_INSERTDATE     EA_INSERTDATE   
+			       ,B.EA_EMPNO          EA_EMPNO
+			       ,B.EA_SUBJECT        EA_SUBJECT
+			       ,C.EMNAME            EMNAME
+			FROM    EA_LOG A
+			       ,EA_TABLE B
+			       ,(SELECT  C.EMNAME    EMNAME
+			         FROM    EM_INFO C
+			         WHERE   C.EMNO=#{emno, jdbcType=VARCHAR})C  
+			WHERE   B.EA_EMPNO=#{emno, jdbcType=VARCHAR}    
+			AND     A.EA_LOGNO=B.EA_LOGNO
+			AND     A.EA_STATUS IN('05'))AA
+		)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 전자결재문서양식 detail -->
+	<select id="eaFormDetail" parameterType="ea_" resultType="ea_">
+	SELECT
+           A.EA_DOCCD          EA_DOCCD
+          ,A.EA_LINENO         EA_LINENO
+          ,A.EA_NO             EA_NO
+          ,A.EA_SUBJECT        EA_SUBJECT
+          ,A.EA_MEMO           EA_MEMO
+          ,A.EA_EMPNO          EA_EMPNO
+          ,A.EACNO			   EACNO
+          ,A.EADRAFTCONTANT	   EADRAFTCONTANT
+          ,A.EA_INSERTDATE     EA_INSERTDATE
+          ,B.EA_FINALDATE      EA_FINALDATE
+          ,B.EA_LOGNO          EA_LOGNO
+          ,B.EA_LINENO         EA_LINENO
+          ,B.EA_STEPNO         EA_STEPNO
+          ,A.EA_STATUS         EA_STATUS  
+          ,B.EA_SIGN           EA_SIGN
+          ,B.EA_SIGN1          EA_SIGN1
+          ,B.EA_SIGN2          EA_SIGN2
+          ,C.EMNAME            EMNAME
+          ,C.EA_EMPNO          EA_EMPNO
+          ,C.JOBCD             JOBCD
+          ,C.JOBNAME           JOBNAME
+          ,C.DEPTCD            DEPTCD
+          ,C.DEPTNAME          DEPTNAME
+          ,D.EMNAME1           EMNAME1
+          ,D.EA_EMPNO1         EA_EMPNO1
+          ,D.JOBCD1            JOBCD1
+          ,D.JOBNAME1          JOBNAME1
+          ,D.DEPTCD1           DEPTCD1
+          ,D.DEPTNAME1         DEPTNAME1
+          ,E.EMNAME2           EMNAME2
+          ,E.EA_EMPNO2         EA_EMPNO2
+          ,E.JOBCD2            JOBCD2
+          ,E.JOBNAME2          JOBNAME2
+          ,E.DEPTCD2           DEPTCD2
+          ,E.DEPTNAME2         DEPTNAME2
+   FROM    EA_TABLE A
+          ,EA_LOG   B
+          ,(SELECT    A.EMNAME     AS EMNAME
+                     ,B.EA_EMPNO   AS EA_EMPNO
+                     ,A.JOBCD      AS JOBCD
+                     ,A.DEPTCD     AS DEPTCD      
+                     ,C.JOBNAME    AS JOBNAME
+                     ,D.DEPTNAME   AS DEPTNAME
+            FROM      EM_INFO A
+                     ,EA_STEP B
+                     ,EM_JOB C
+                     ,EM_DEPARTMENT D
+            WHERE     A.EMNO=B.EA_EMPNO
+            AND       A.DEPTCD=D.DEPTCD
+            AND       A.JOBCD=C.JOBCD
+            AND       B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR})C         
+          ,(SELECT    A.EMNAME   AS EMNAME1
+                     ,B.EA_EMPNO1 AS EA_EMPNO1
+                     ,A.JOBCD     AS JOBCD1
+                     ,A.DEPTCD     AS DEPTCD1
+                     ,C.JOBNAME    AS JOBNAME1
+                     ,D.DEPTNAME   AS DEPTNAME1
+            FROM      EM_INFO A
+                     ,EA_STEP B
+                     ,EM_JOB  C
+                     ,EM_DEPARTMENT D
+            WHERE     A.EMNO=B.EA_EMPNO1
+             AND      A.DEPTCD=D.DEPTCD
+             AND      A.JOBCD=C.JOBCD
+            AND       B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR})D         
+          ,(SELECT    A.EMNAME   AS EMNAME2
+                     ,B.EA_EMPNO2 AS EA_EMPNO2
+                     ,A.JOBCD     AS JOBCD2
+                     ,A.DEPTCD     AS DEPTCD2
+                     ,C.JOBNAME    AS JOBNAME2
+                     ,D.DEPTNAME   AS DEPTNAME2
+            FROM      EM_INFO A    
+                     ,EA_STEP B
+                     ,EM_JOB  C
+                     ,EM_DEPARTMENT D
+            WHERE     A.EMNO=B.EA_EMPNO2
+             AND      A.DEPTCD=D.DEPTCD
+             AND      A.JOBCD=C.JOBCD
+            AND       B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR})E                        
+   WHERE   A.EA_NO=#{ea_no, jdbcType=VARCHAR}                              
+   AND     A.EA_LOGNO=B.EA_LOGNO
+   AND    (C.EA_EMPNO=#{emno, jdbcType=VARCHAR}
+   OR      D.EA_EMPNO1=#{emno, jdbcType=VARCHAR}
+   OR      E.EA_EMPNO2=#{emno, jdbcType=VARCHAR})
+	</select>
+	
+	<!-- 내가 결재자인 전체 리스트 출력 -->
+	<select id="eaListAll" parameterType="ea_" resultType="ea_">
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			  SELECT B.EA_NO            EA_NO
+	                ,B.EA_LINENO        EA_LINENO
+	                ,B.EA_LOGNO         EA_LOGNO
+	                ,B.EA_DOCCD         EA_DOCCD
+	                ,B.EA_EMPNO         EA_EMPNO
+	                ,B.EA_SUBJECT       EA_SUBJECT
+	                ,B.EA_INSERTDATE    EA_INSERTDATE
+	                ,B.EA_STATUS        EA_STATUS
+	                ,B.EA_NEXTEMNO      EA_NEXTEMNO
+	                ,C.EA_STEPNO         EA_STEPNO
+	                ,G.EMNAME           EMNAME
+	          FROM
+					(SELECT A.*
+					FROM   EA_TABLE A
+					WHERE A.EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+					AND A.EA_STATUS IN('01', '02', '03', '04', '05', '06', '07')
+					ORDER BY A.EA_INSERTDATE DESC)B   
+				    ,EA_LOG C
+				    ,(SELECT D.*
+                      FROM EM_INFO D, EA_TABLE E, EA_LOG F
+                      WHERE D.EMNO=E.EA_EMPNO
+                      AND   EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+                      AND   E.EA_LOGNO=F.EA_LOGNO
+                      AND   ROWNUM='1'
+                      ORDER BY E.EA_NO DESC)G
+	          WHERE C.EA_LOGNO=B.EA_LOGNO
+			<if test="datesearch=='ea_insertdate'">
+				AND     TO_CHAR(EA_INSERTDATE, 'YYYYMMDD') &gt;= TO_DATE(#{st_date},'YYYYMMDD')
+		    	AND     TO_CHAR(EA_INSERTDATE, 'YYYYMMDD') &lt;= TO_DATE(#{ed_date},'YYYYMMDD')+1
+			</if>
+			)AA
+		)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 내가 결재자인 결재진행가능 문서리스트 출력 -->
+	<select id="eaListSelect" parameterType="ea_" resultType="ea_">
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			  SELECT B.EA_NO            EA_NO
+	                ,B.EA_LINENO        EA_LINENO
+	                ,B.EA_LOGNO         EA_LOGNO
+	                ,B.EA_DOCCD         EA_DOCCD
+	                ,B.EA_EMPNO         EA_EMPNO
+	                ,B.EA_SUBJECT       EA_SUBJECT
+	                ,B.EA_INSERTDATE    EA_INSERTDATE
+	                ,B.EA_STATUS        EA_STATUS
+	                ,B.EA_NEXTEMNO      EA_NEXTEMNO
+	                ,C.EA_STEPNO         EA_STEPNO
+	                ,G.EMNAME           EMNAME
+	          FROM
+					(SELECT A.*
+					FROM   EA_TABLE A
+					WHERE A.EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+					AND A.EA_STATUS IN('01','02')
+					ORDER BY A.EA_INSERTDATE DESC)B   
+				    ,EA_LOG C
+				    ,(SELECT D.*
+                      FROM EM_INFO D, EA_TABLE E, EA_LOG F
+                      WHERE D.EMNO=E.EA_EMPNO
+                      AND   EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+                      AND   E.EA_LOGNO=F.EA_LOGNO
+                      AND   ROWNUM='1'
+                      ORDER BY E.EA_NO DESC)G
+	          WHERE C.EA_LOGNO=B.EA_LOGNO)AA
+			)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 내가 결재자인 대기 상태 문서리스트 출력 -->
+	<select id="eaListStand" parameterType="ea_" resultType="ea_">
+	SELECT                                                            
+			*                                                   	
+	FROM (                                                           	
+	SELECT 
+	        AA.*
+	       ,CEIL(ROW_NUMBER() OVER(ORDER BY AA.EA_NO DESC)/#{pageSize, jdbcType=VARCHAR}) PAGENO 
+	       ,COUNT(AA.EA_NO) OVER() AS TOTALCOUNT  
+	FROM
+		(
+			  SELECT B.EA_NO            EA_NO
+	                ,B.EA_LINENO        EA_LINENO
+	                ,B.EA_LOGNO         EA_LOGNO
+	                ,B.EA_DOCCD         EA_DOCCD
+	                ,B.EA_EMPNO         EA_EMPNO
+	                ,B.EA_SUBJECT       EA_SUBJECT
+	                ,B.EA_INSERTDATE    EA_INSERTDATE
+	                ,B.EA_STATUS        EA_STATUS
+	                ,B.EA_NEXTEMNO      EA_NEXTEMNO
+	                ,C.EA_STEPNO         EA_STEPNO
+	                ,G.EMNAME           EMNAME
+	          FROM
+					(SELECT A.*
+					FROM   EA_TABLE A
+					WHERE A.EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+					AND A.EA_STATUS IN('05')
+					ORDER BY A.EA_INSERTDATE DESC)B   
+				    ,EA_LOG C
+				    ,(SELECT D.*
+                      FROM EM_INFO D, EA_TABLE E, EA_LOG F
+                      WHERE D.EMNO=E.EA_EMPNO
+                      AND   EA_NEXTEMNO=#{emno, jdbcType=VARCHAR}
+                      AND   E.EA_LOGNO=F.EA_LOGNO
+                      AND   ROWNUM='1'
+                      ORDER BY E.EA_NO DESC)G
+	          WHERE C.EA_LOGNO=B.EA_LOGNO)AA
+			)
+	WHERE  PAGENO=#{curPage, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 중간결재자 업데이트 전 로그 누적 -->
+	<insert id="eaLog1st" parameterType="ea_">
+		INSERT INTO EA_LOG
+			(
+			 EA_NO
+			,EA_LOGNO
+			,EA_STEPNO
+			,EA_LINENO
+			,EA_FINALDATE
+			,EA_STATUS
+			,EA_SIGN
+			,EA_SIGN1
+			,EA_SIGN2
+			)
+		VALUES
+			(
+			 #{ea_no, jdbcType=VARCHAR}
+			,#{ea_logno, jdbcType=VARCHAR}
+			,#{ea_stepno, jdbcType=VARCHAR}
+			,#{ea_lineno, jdbcType=VARCHAR}
+			,SYSDATE
+			,#{ea_status, jdbcType=VARCHAR}
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                          B.EA_EMPNO 
+			                 FROM     EA_STEP B 
+			                 WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                 AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                          B.EA_EMPNO1 
+			                 FROM     EA_STEP B 
+			                 WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                 AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			,null
+			)
+	</insert>
+	
+	<!-- 결재자 업데이트 -->
+	<update id="updateTable" parameterType="ea_">
+		UPDATE    EA_TABLE A
+		SET      
+		          A.EA_LOGNO=#{ea_logno, jdbcType=VARCHAR}    --로그번호
+		         ,A.EA_STATUS=#{ea_status, jdbcType=VARCHAR}	-- 결재문서상태
+		         ,A.EA_NEXTEMNO=#{ea_nextemno, jdbcType=VARCHAR} -- 다음 결재자 설정
+		WHERE    A.EA_NO=#{ea_no, jdbcType=VARCHAR}          --전자결재번호
+	</update>
+	
+	<!-- 최종결재자 업데이트 전 로그 누적 -->
+	<insert id="eaLog2nd" parameterType="ea_">
+		INSERT INTO EA_LOG
+			(
+			 EA_FINALDATE
+			,EA_LOGNO
+			,EA_LINENO
+			,EA_STEPNO
+			,EA_NO
+			,EA_STATUS
+			,EA_SIGN
+			,EA_SIGN1
+			,EA_SIGN2
+			)
+		VALUES
+			(
+			 SYSDATE                 				--EA_FINALDATE
+			,#{ea_logno, jdbcType=VARCHAR}     		--로그번호(채번. 변화해야하는 부분)
+			,#{ea_lineno, jdbcType=VARCHAR}       	--결재LINE번호
+			,#{ea_stepno, jdbcType=VARCHAR}    		--결재STEP코드
+			,#{ea_no, jdbcType=VARCHAR}        		--전자결재번호
+			,#{ea_status, jdbcType=VARCHAR}         --바뀌어야하는 부분. 1차= 승인, 2차=최종승인
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                            B.EA_EMPNO 
+			                   FROM     EA_STEP B 
+			                   WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                   AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                            B.EA_EMPNO1 
+			                   FROM     EA_STEP B 
+			                   WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                   AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			,(SELECT 
+			        A.EMSIGN 
+			  FROM  EM_INFO A 
+			  WHERE A.EMNO=(SELECT 
+			                            B.EA_EMPNO2 
+			                   FROM     EA_STEP B 
+			                   WHERE    B.EA_LINENO=#{ea_lineno, jdbcType=VARCHAR}
+			                   AND      B.EA_STEPNO=#{ea_stepno, jdbcType=VARCHAR}))
+			)
+	</insert>
+</mapper>
